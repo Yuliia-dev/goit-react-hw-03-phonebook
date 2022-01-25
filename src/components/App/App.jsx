@@ -13,11 +13,6 @@ export default class App extends Component {
     filter: '',
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts)
-      localStorage.setItem(KEY, JSON.stringify(this.state.contacts));
-  }
-
   componentDidMount() {
     const parseContacts = JSON.parse(localStorage.getItem(KEY));
     if (parseContacts) {
@@ -25,23 +20,31 @@ export default class App extends Component {
     }
   }
 
-  onSubmitHandling = ({ id, name, number }) => {
-    const contact = {
-      id,
-      name,
-      number,
-    };
-    const normalizedNameContact = name.toLowerCase();
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.contacts !== prevState.contacts)
+      localStorage.setItem(KEY, JSON.stringify(this.state.contacts));
+  }
 
-    this.checkForCopyingContact(normalizedNameContact)
-      ? Swal.fire({
-          icon: 'warning',
-          title: 'Oops...',
-          text: `The name ${name} is already in the list`,
-        })
-      : this.setState(prevState => ({
-          contacts: [...prevState.contacts, contact],
-        }));
+  onSubmitHandling = ({ id, name, number }) => {
+    const { contacts } = this.state;
+    if (contacts.name !== name) {
+      const contact = {
+        id,
+        name,
+        number,
+      };
+      const normalizedNameContact = name.toLowerCase();
+
+      this.checkForCopyingContact(normalizedNameContact)
+        ? Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: `The name ${name} is already in the list`,
+          })
+        : this.setState(prevState => ({
+            contacts: [...prevState.contacts, contact],
+          }));
+    }
   };
 
   checkForCopyingContact = name => {
